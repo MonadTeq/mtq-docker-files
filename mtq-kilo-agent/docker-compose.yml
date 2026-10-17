@@ -22,7 +22,7 @@ services:
       retries: 10
       start_period: 10s
     volumes:
-      - ./tunnel/wg0.conf:/etc/wireguard/wg0.conf:ro
+      - ./agent-tunnel/wg0.conf:/etc/wireguard/wg0.conf:ro
 
   mtq-claude-agent:
     image: mtq-kilo-agent:latest
@@ -31,7 +31,7 @@ services:
     cap_add:
       - NET_ADMIN
     environment:
-      - TUNNEL_GATEWAY=172.20.0.2
+      - AGENT_TUNNEL_GATEWAY=172.20.0.2
       - VSCODE_TUNNEL_NAME=mtq-kilo-tunnel
       - VSCODE_CLI_USE_FILE_KEYCHAIN=true
       - VSCODE_CLI_DISABLE_KEYCHAIN_ENCRYPT=true
@@ -45,8 +45,8 @@ services:
     restart: unless-stopped
     command: ["sleep", "infinity"]
     volumes:
-      - ./vscode/cli:/root/.vscode-cli
-      - ./workspace:/workspace
+      - ./agent-vscode/cli:/root/.vscode-cli
+      - ./agent-workspace:/workspace
 
 networks:
   mtq-kilo-agent-net:

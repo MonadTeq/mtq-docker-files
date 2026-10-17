@@ -1,16 +1,16 @@
 #!/bin/sh
 set -e
 
-if [ -n "$TUNNEL_GATEWAY" ]; then
-  echo "Waiting for tunnel gateway $TUNNEL_GATEWAY..."
-  until ip route get "$TUNNEL_GATEWAY" >/dev/null 2>&1; do
+if [ -n "$AGENT_TUNNEL_GATEWAY" ]; then
+  echo "Waiting for tunnel gateway $AGENT_TUNNEL_GATEWAY..."
+  until ip route get "$AGENT_TUNNEL_GATEWAY" >/dev/null 2>&1; do
     sleep 1
   done
 
-  ip route replace default via "$TUNNEL_GATEWAY"
-  echo "Default route via $TUNNEL_GATEWAY set."
+  ip route replace default via "$AGENT_TUNNEL_GATEWAY"
+  echo "Default route via $AGENT_TUNNEL_GATEWAY set."
 else
-  echo "TUNNEL_GATEWAY not set, skipping route setup."
+  echo "AGENT_TUNNEL_GATEWAY not set, skipping route setup."
 fi
 
 # Run VS Code Tunnel in background
