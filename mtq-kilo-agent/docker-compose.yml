@@ -1,0 +1,56 @@
+services:
+  mtq-kilo-tunnel:
+    image: izetmolla/wireguard-router:latest
+    container_name: mtq-kilo-tunnel
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv4.ip_forward=1
+    environment:
+      - DOCKER_NET_CIDR=172.20.0.0/24
+      - REMOTE_LAN_CIDRS=0.0.0.0/0
+    networks:
+      mtq-kilo-agent-net:
+        ipv4_address: 172.20.0.2
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "ip link show wg0 >/dev/null 2>&1 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    volumes:
+      - ./tunnel/wg0.conf:/etc/wireguard/wg0.conf:ro
+
+  mtq-claude-agent:
+    image: mtq-kilo-agent:latest
+    container_name: mtq-kilo-agent
+    hostname: mtq-kilo-agent
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - TUNNEL_GATEWAY=172.20.0.2
+      - VSCODE_TUNNEL_NAME=mtq-kilo-tunnel
+      - VSCODE_CLI_USE_FILE_KEYCHAIN=true
+      - VSCODE_CLI_DISABLE_KEYCHAIN_ENCRYPT=true
+      - VSCODE_CLI_DATA_DIR=/root/.vscode-cli
+    networks:
+      mtq-kilo-agent-net:
+        ipv4_address: 172.20.0.3
+    depends_on:
+      mtq-kilo-tunnel:
+        condition: service_healthy
+    restart: unless-stopped
+    command: ["sleep", "infinity"]
+    volumes:
+      - ./vscode/cli:/root/.vscode-cli
+      - ./workspace:/workspace
+
+networks:
+  mtq-kilo-agent-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
