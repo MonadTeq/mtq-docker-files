@@ -16,7 +16,6 @@ fi
 # Run VS Code Tunnel in background
 # Required VSCODE_TUNNEL_NAME and VSCODE_CLI_ACCESS_TOKEN (GitHub Personal Token)
 if [ -n "$VSCODE_TUNNEL_NAME" ]; then
-  
 
   export VSCODE_CLI_USE_FILE_KEYCHAIN=true
   export VSCODE_CLI_DISABLE_KEYCHAIN_ENCRYPT=true
